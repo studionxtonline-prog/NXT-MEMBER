@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NXT MEMBER - Admin Panel</title>
+    
+    <!-- Google Fonts: Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f8fafc;
+        }
+        .input-minimal {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s;
+            background: white;
+        }
+        .input-minimal:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+        .tab-btn.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-10 px-4">
+
+    <div class="max-w-xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="bg-gray-900 text-white p-6 text-center">
+            <img src="https://img1.pic.in.th/images/20856.png" alt="Logo" class="h-12 mx-auto mb-2 brightness-0 invert">
+            <h1 class="text-xl font-bold">NXT MEMBER ADMIN PANEL</h1>
+            <p class="text-xs text-gray-400 mt-1">ระบบจัดการหลังบ้านสมาชิกและประกาศ</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex border-b bg-gray-50 p-2 gap-2">
+            <button onclick="switchTab('points')" id="tab-btn-points" class="tab-btn active flex-1 py-2.5 rounded-lg font-bold text-sm transition">
+                <i class="fa-solid fa-coins mr-1"></i> เพิ่มพอยท์สมาชิก
+            </button>
+            <button onclick="switchTab('banner')" id="tab-btn-banner" class="tab-btn flex-1 py-2.5 rounded-lg font-bold text-sm text-gray-600 transition">
+                <i class="fa-solid fa-bullhorn mr-1"></i> จัดการประกาศ
+            </button>
+        </div>
+
+        <!-- Section 1: เพิ่มพอยท์ -->
+        <div id="section-points" class="p-6">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">เพิ่มพอยท์และบันทึกบริการ</h2>
+            <form onsubmit="submitAddPoints(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์ลูกค้า (10 หลัก)</label>
+                    <input type="tel" id="pts-phone" required maxlength="10" placeholder="08xxxxxxxx" class="input-minimal">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อบริการ / รายการ</label>
+                    <input type="text" id="pts-service" required placeholder="เช่น ตัดผมชาย, ซื้อสินค้า" class="input-minimal">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ราคาบริการ (บาท)</label>
+                    <input type="number" id="pts-price" required placeholder="0" class="input-minimal">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">จำนวนพอยท์ที่จะได้รับ</label>
+                    <input type="number" id="pts-amount" required placeholder="0" class="input-minimal">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-md">
+                    บันทึกและเพิ่มพอยท์
+                </button>
+            </form>
+        </div>
+
+        <!-- Section 2: จัดการประกาศ -->
+        <div id="section-banner" class="p-6" style="display: none;">
+            <h2 class="text-lg font-bold text-gray-800 mb-4">เพิ่มประกาศ / ป้ายประชาสัมพันธ์</h2>
+            <form onsubmit="submitAddBanner(event)" class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">หัวข้อประกาศ</label>
+                    <input type="text" id="ban-title" required placeholder="เช่น โปรโมชั่นพิเศษเดือนนี้" class="input-minimal">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ลิงก์รูปภาพ (Image URL)</label>
+                    <input type="url" id="ban-img" required placeholder="https://..." class="input-minimal">
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl font-bold hover:bg-green-700 transition shadow-md">
+                    เผยแพร่ประกาศ
+                </button>
+            </form>
+
+            <h3 class="font-bold text-gray-800 mb-3 text-sm">ประกาศที่มีอยู่ทั้งหมด</h3>
+            <div id="banner-list" class="space-y-2">
+                <p class="text-gray-400 text-sm text-center py-4">กำลังโหลดข้อมูล...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx48qTE9jzw8BO-QCiZamFvyiWr2E-u7vhPejpVrZ4tjLvwF-97KWCig0i0Tyz1QYIq/exec";
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            if(tab === 'points') {
+                document.getElementById('tab-btn-points').classList.add('active');
+                document.getElementById('section-points').style.display = 'block';
+                document.getElementById('section-banner').style.display = 'none';
+            } else {
+                document.getElementById('tab-btn-banner').classList.add('active');
+                document.getElementById('section-points').style.display = 'none';
+                document.getElementById('section-banner').style.display = 'block';
+                loadAnnouncements();
+            }
+        }
+
+        async function submitAddPoints(e) {
+            e.preventDefault();
+            Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            const payload = {
+                action: 'addPoints',
+                phone: document.getElementById('pts-phone').value,
+                serviceName: document.getElementById('pts-service').value,
+                price: document.getElementById('pts-price').value,
+                pointsToAdd: document.getElementById('pts-amount').value
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    Swal.fire('สำเร็จ', 'เพิ่มพอยท์ให้ลูกค้าเรียบร้อยแล้ว', 'success');
+                    e.target.reset();
+                } else {
+                    Swal.fire('ผิดพลาด', result.message, 'error');
+                }
+            } catch (err) {
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+            }
+        }
+
+        async function submitAddBanner(e) {
+            e.preventDefault();
+            Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            const payload = {
+                action: 'addAnnouncement',
+                title: document.getElementById('ban-title').value,
+                imageUrl: document.getElementById('ban-img').value
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    Swal.fire('สำเร็จ', 'เพิ่มประกาศเรียบร้อยแล้ว', 'success');
+                    e.target.reset();
+                    loadAnnouncements();
+                } else {
+                    Swal.fire('ผิดพลาด', result.message, 'error');
+                }
+            } catch (err) {
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+            }
+        }
+
+        async function loadAnnouncements() {
+            const container = document.getElementById('banner-list');
+            container.innerHTML = '<p class="text-gray-400 text-sm text-center py-2">กำลังโหลด...</p>';
+
+            try {
+                const response = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getAnnouncements' }) });
+                const result = await response.json();
+
+                if(result.status === 'success') {
+                    if(result.announcements.length === 0) {
+                        container.innerHTML = '<p class="text-gray-400 text-sm text-center py-2">ยังไม่มีประกาศ</p>';
+                        return;
+                    }
+                    container.innerHTML = '';
+                    result.announcements.forEach(item => {
+                        container.innerHTML += `
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                                <div class="flex items-center gap-3">
+                                    <img src="${item.imageUrl}" class="w-12 h-12 object-cover rounded-md" onerror="this.src='https://via.placeholder.com/50'">
+                                    <div>
+                                        <p class="font-bold text-sm text-gray-800">${item.title}</p>
+                                        <p class="text-xs text-gray-400">${item.createdAt}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            } catch(err) {
+                container.innerHTML = '<p class="text-red-400 text-sm text-center py-2">โหลดข้อมูลไม่สำเร็จ</p>';
+            }
+        }
+    </script>
+</body>
+</html>
