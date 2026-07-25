@@ -128,7 +128,7 @@
             transition: transform 0.2s;
         }
         .nav-item.active {
-            color: #3b82f6; /* สีน้ำเงินสไตล์ทันสมัย */
+            color: #3b82f6;
         }
         .nav-item.active i {
             transform: translateY(-2px);
@@ -365,8 +365,8 @@
         // ==========================================
         // การตั้งค่า API และ LIFF
         // ==========================================
-        const LIFF_ID = "2010842634-E2d2x4l0"; // **ใส่ LIFF ID ของคุณที่นี่**
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx48qTE9jzw8BO-QCiZamFvyiWr2E-u7vhPejpVrZ4tjLvwF-97KWCig0i0Tyz1QYIq/exec"; // **ใส่ URL ของ Google Apps Script ของคุณที่นี่**
+        const LIFF_ID = "2010842634-E2d2x4l0";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx48qTE9jzw8BO-QCiZamFvyiWr2E-u7vhPejpVrZ4tjLvwF-97KWCig0i0Tyz1QYIq/exec";
         
         let currentUserProfile = null;
         let userDataFromDB = null;
@@ -380,11 +380,11 @@
             // ระบบสไลด์แบนเนอร์
             initSlider();
 
-            // เริ่มต้น LIFF (ถ้าใช้งานบนคอม จะจำลองข้อมูลเพื่อทดสอบให้)
-            if (LIFF_ID === "YOUR_LIFF_ID") {
+            // เริ่มต้น LIFF
+            if (LIFF_ID === "" || LIFF_ID === "YOUR_LIFF_ID") {
                 hideLoader();
                 showPage('page-login');
-                Swal.fire('แจ้งเตือน', 'กรุณาใส่ LIFF ID และ Web App URL ในโค้ดก่อนใช้งานจริง', 'warning');
+                Swal.fire('แจ้งเตือน', 'กรุณาใส่ LIFF ID ให้ถูกต้อง', 'warning');
             } else {
                 initializeLiff();
             }
