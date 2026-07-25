@@ -1,6 +1,6 @@
 // ตั้งค่าตั้งต้น
-const LIFF_ID = "YOUR_LIFF_ID"; 
-const GAS_URL = "YOUR_GOOGLE_APP_SCRIPT_WEBAPP_URL"; 
+const LIFF_ID = "2010842634-E2d2x4l0"; 
+const GAS_URL = "https://script.google.com/macros/s/AKfycbx48qTE9jzw8BO-QCiZamFvyiWr2E-u7vhPejpVrZ4tjLvwF-97KWCig0i0Tyz1QYIq/exec"; 
 
 // ควบคุมเวลา 00:00:00
 setInterval(() => {
