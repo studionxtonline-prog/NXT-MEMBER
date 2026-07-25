@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NXT MEMBER</title>
+    <!-- Fonts: Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons: Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- Slider: Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. หน้า Login -->
+    <section id="page-login" class="page-section active">
+        <div class="login-container">
+            <img src="https://img1.pic.in.th/images/20856.png" alt="NXT Logo" class="logo-large">
+            <h1 class="welcome-text">ระบบสมาชิก NXT MEMBER</h1>
+            <button id="btn-line-login" class="btn-line">
+                <i class='bx bxl-line'></i> ดำเนินการต่อด้วย LINE
+            </button>
+        </div>
+    </section>
+
+    <!-- 2. หน้าลงทะเบียน (ครั้งแรก) -->
+    <section id="page-register" class="page-section">
+        <div class="header-top">
+            <h2>ลงทะเบียนสมาชิกใหม่</h2>
+        </div>
+        <div class="form-container">
+            <div class="input-group">
+                <label>คำนำหน้า</label>
+                <select id="prefix">
+                    <option value="ด.ญ.">เด็กหญิง</option>
+                    <option value="ด.ช.">เด็กชาย</option>
+                    <option value="นาย">นาย</option>
+                    <option value="นาง">นาง</option>
+                    <option value="นางสาว">นางสาว</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>ชื่อ-นามสกุล (ภาษาไทย)</label>
+                <input type="text" id="name-th" placeholder="กรอกชื่อ-นามสกุลภาษาไทย">
+            </div>
+            <div class="input-group">
+                <label>ชื่อ-นามสกุล (ภาษาอังกฤษ)</label>
+                <input type="text" id="name-en" placeholder="กรอกชื่อ-นามสกุลภาษาอังกฤษ">
+            </div>
+            <div class="input-group">
+                <label>เบอร์โทรศัพท์</label>
+                <input type="tel" id="phone" maxlength="10" placeholder="08XXXXXXXX">
+            </div>
+            <div class="input-group otp-group">
+                <label>อีเมล</label>
+                <div class="otp-flex">
+                    <input type="email" id="email" placeholder="example@gmail.com">
+                    <button type="button" id="btn-get-otp" class="btn-outline">รับรหัส</button>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>รหัสยืนยัน OTP (6 หลัก)</label>
+                <input type="text" id="otp" maxlength="6" placeholder="กรอกรหัส 6 หลัก">
+            </div>
+            <div class="input-group">
+                <label>วัน/เดือน/ปีเกิด</label>
+                <input type="date" id="dob">
+            </div>
+            <button id="btn-register" class="btn-primary">ยืนยันการลงทะเบียน</button>
+        </div>
+    </section>
+
+    <!-- 3. หน้าแดชบอร์ด & เมนูล่าง -->
+    <section id="page-main" class="page-section">
+        <!-- Content Area -->
+        <div id="tab-home" class="tab-content active">
+            <div class="header-profile">
+                <div>
+                    <p class="greeting">ยินดีต้อนรับคุณ,</p>
+                    <h3 id="user-display-name">Loading...</h3>
+                </div>
+                <div class="clock">
+                    <p id="current-date">--/--/----</p>
+                    <p id="current-time">00:00:00</p>
+                </div>
+            </div>
+
+            <!-- Digital Member Card -->
+            <div class="member-card">
+                <img src="https://img1.pic.in.th/images/20856.png" alt="Logo" class="card-logo">
+                <h2 id="card-name-en">NXT MEMBER</h2>
+                <div class="point-area">
+                    <p>Point คงเหลือ</p>
+                    <h1 id="card-points">0</h1>
+                </div>
+            </div>
+
+            <!-- Swiper Slider (ประชาสัมพันธ์) -->
+            <h3 class="section-title">ประชาสัมพันธ์ / ข่าวสาร</h3>
+            <div class="swiper mySwiper">
+                <div class="swiper-wrapper">
+                    <!-- สามารถวนลูปรูปภาพจาก Database ได้ -->
+                    <div class="swiper-slide"><div class="mock-banner">แคมเปญพิเศษ 1</div></div>
+                    <div class="swiper-slide"><div class="mock-banner">แคมเปญพิเศษ 2</div></div>
+                </div>
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+
+        <div id="tab-history" class="tab-content">
+            <h2 class="section-title" style="margin: 20px;">ประวัติการใช้บริการ</h2>
+            <div class="history-list">
+                <!-- ตัวอย่าง Item -->
+                <div class="history-item">
+                    <div class="history-left">
+                        <h4>ซื้อสินค้า NXT</h4>
+                        <p>12 ต.ค. 2566 | 14:30:00</p>
+                    </div>
+                    <div class="history-right">
+                        <p class="price">500 บาท</p>
+                        <p class="points-earned">+50 แต้ม</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-me" class="tab-content">
+            <h2 class="section-title" style="margin: 20px;">ข้อมูลส่วนตัว</h2>
+            <div class="profile-details">
+                <p><strong>ชื่อ:</strong> <span id="profile-name">...</span></p>
+                <p><strong>เบอร์โทร:</strong> <span id="profile-phone">...</span></p>
+                <p><strong>อีเมล:</strong> <span id="profile-email">...</span></p>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="switchTab('home')">
+                <i class='bx bx-home-alt'></i>
+                <span>หน้าแรก</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('history')">
+                <i class='bx bx-history'></i>
+                <span>ประวัติ</span>
+            </button>
+            <button class="nav-item" onclick="switchTab('me')">
+                <i class='bx bx-user'></i>
+                <span>ฉัน</span>
+            </button>
+        </nav>
+    </section>
+
+    <!-- Scripts -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
