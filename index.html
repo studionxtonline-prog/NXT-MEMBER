@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NXT MEMBER</title>
+    
+    <!-- Google Fonts: Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SweetAlert2 (Minimal Popups) -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- LINE LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f3f4f6;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* ซ่อนทุกหน้าเป็นค่าเริ่มต้น */
+        .page-view {
+            display: none;
+            min-height: 100vh;
+            padding-bottom: 80px; /* เว้นที่ให้ Bottom Nav */
+        }
+        
+        /* แสดงหน้าเว็บแบบ active */
+        .page-view.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ปุ่มสีเขียวสไตล์ LINE */
+        .btn-line {
+            background-color: #06C755;
+            color: white;
+            transition: all 0.2s;
+        }
+        .btn-line:active {
+            background-color: #05a044;
+            transform: scale(0.98);
+        }
+
+        /* Digital Member Card Gradient */
+        .member-card {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .member-card::before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Banner Slider */
+        .slider-container {
+            overflow: hidden;
+            position: relative;
+            border-radius: 0.75rem;
+        }
+        .slider-wrapper {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .slider-slide {
+            min-width: 100%;
+            height: 150px;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 50;
+            padding-bottom: env(safe-area-inset-bottom, 10px);
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #9ca3af;
+            font-size: 12px;
+            transition: color 0.3s;
+            cursor: pointer;
+            width: 33.33%;
+        }
+        .nav-item i {
+            font-size: 20px;
+            margin-bottom: 4px;
+            transition: transform 0.2s;
+        }
+        .nav-item.active {
+            color: #3b82f6; /* สีน้ำเงินสไตล์ทันสมัย */
+        }
+        .nav-item.active i {
+            transform: translateY(-2px);
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Custom Input Style */
+        .input-minimal {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s;
+            background: white;
+        }
+        .input-minimal:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ระบบโหลด -->
+    <div id="loader">
+        <div class="spinner"></div>
+        <p class="mt-4 text-gray-500 font-medium">กำลังโหลด...</p>
+    </div>
+
+    <!-- หน้าที่ 1: Login Page -->
+    <div id="page-login" class="page-view bg-white flex flex-col justify-center items-center h-screen px-6">
+        <img src="https://img1.pic.in.th/images/20856.png" alt="NXT MEMBER Logo" class="w-48 mb-10 drop-shadow-md">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">ยินดีต้อนรับสู่</h1>
+        <p class="text-gray-500 mb-10">NXT MEMBER SYSTEM</p>
+        
+        <button onclick="loginWithLine()" class="btn-line w-full py-4 rounded-xl font-bold text-lg flex justify-center items-center shadow-lg">
+            <i class="fa-brands fa-line text-2xl mr-3"></i> ดำเนินการต่อด้วย LINE
+        </button>
+    </div>
+
+    <!-- หน้าที่ 2: Register Page -->
+    <div id="page-register" class="page-view px-5 pt-8 bg-white min-h-screen">
+        <div class="text-center mb-6">
+            <img src="https://img1.pic.in.th/images/20856.png" alt="Logo" class="w-24 mx-auto mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">กรอกข้อมูลสมาชิกใหม่</h2>
+            <p class="text-sm text-gray-500">กรุณากรอกข้อมูลให้ครบถ้วนสำหรับการสมัครครั้งแรก</p>
+        </div>
+
+        <form id="register-form" onsubmit="submitRegister(event)">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">คำนำหน้า</label>
+                    <select id="reg-prefix" required class="input-minimal">
+                        <option value="" disabled selected>เลือกคำนำหน้า</option>
+                        <option value="เด็กหญิง">เด็กหญิง</option>
+                        <option value="เด็กชาย">เด็กชาย</option>
+                        <option value="นาย">นาย</option>
+                        <option value="นาง">นาง</option>
+                        <option value="นางสาว">นางสาว</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-สกุล (ภาษาไทย)</label>
+                    <input type="text" id="reg-name-th" required placeholder="เช่น สมชาย ใจดี" class="input-minimal">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อ-สกุล (ภาษาอังกฤษ)</label>
+                    <input type="text" id="reg-name-en" required placeholder="เช่น Somchai Jaidee" class="input-minimal">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์ (10 หลัก)</label>
+                    <input type="tel" id="reg-phone" required pattern="[0-9]{10}" maxlength="10" placeholder="08xxxxxxxx" class="input-minimal">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">วัน/เดือน/ปีเกิด</label>
+                    <input type="date" id="reg-dob" required class="input-minimal">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">อีเมล</label>
+                    <div class="flex gap-2">
+                        <input type="email" id="reg-email" required placeholder="example@gmail.com" class="input-minimal w-2/3">
+                        <button type="button" onclick="requestOTP()" id="btn-otp" class="w-1/3 bg-gray-800 text-white rounded-lg text-sm font-medium transition hover:bg-gray-700">รับรหัสยืนยัน</button>
+                    </div>
+                </div>
+
+                <div id="otp-section" style="display: none;">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">รหัส OTP (6 หลัก)</label>
+                    <input type="text" id="reg-otp" maxlength="6" pattern="[0-9]{6}" placeholder="ระบุรหัส 6 หลักจากอีเมล" class="input-minimal text-center tracking-[0.5em] font-bold text-lg">
+                </div>
+
+                <button type="submit" id="btn-submit-reg" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold text-lg mt-6 shadow-md transition hover:bg-blue-700" style="display: none;">
+                    ยืนยันการสมัครสมาชิก
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- หน้าที่ 3: Dashboard (หน้าแรก) -->
+    <div id="page-home" class="page-view px-5 pt-6 pb-24">
+        <!-- Header: Welcome & Clock -->
+        <div class="flex justify-between items-start mb-6">
+            <div>
+                <p class="text-gray-500 text-sm">ยินดีต้อนรับคุณ,</p>
+                <h2 id="dash-name" class="text-xl font-bold text-gray-800">กำลังโหลด...</h2>
+            </div>
+            <div class="text-right">
+                <p id="clock-date" class="text-xs text-gray-500">วัน เดือน พ.ศ.</p>
+                <p id="clock-time" class="text-lg font-bold text-blue-600">00:00:00</p>
+            </div>
+        </div>
+
+        <!-- Digital Member Card -->
+        <div class="member-card rounded-2xl p-6 text-white mb-6 relative">
+            <div class="flex justify-between items-center mb-8">
+                <img src="https://img1.pic.in.th/images/20856.png" alt="Logo" class="h-8 brightness-0 invert">
+                <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">MEMBER</span>
+            </div>
+            <p class="text-xs text-blue-100 uppercase tracking-widest mb-1">Member Name</p>
+            <h3 id="card-name-en" class="text-xl font-bold uppercase tracking-wider mb-6">NAME SURNAME</h3>
+            
+            <div class="flex justify-between items-end">
+                <div>
+                    <p class="text-xs text-blue-100 mb-1">Point คงเหลือ</p>
+                    <p class="text-3xl font-bold"><span id="card-points">0</span> <span class="text-sm font-normal">pts</span></p>
+                </div>
+                <button onclick="switchTab('history')" class="bg-white text-blue-700 px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition active:scale-95">
+                    <i class="fa-solid fa-clock-rotate-left mr-1"></i> ประวัติ
+                </button>
+            </div>
+        </div>
+
+        <!-- ประชาสัมพันธ์/ข่าวสาร -->
+        <h3 class="text-lg font-bold text-gray-800 mb-3"><i class="fa-solid fa-bullhorn text-red-500 mr-2"></i>ประชาสัมพันธ์</h3>
+        <div class="slider-container shadow-md">
+            <div class="slider-wrapper" id="banner-slider">
+                <!-- สามารถเปลี่ยน URL รูปภาพป้ายประกาศที่นี่ได้ -->
+                <div class="slider-slide" style="background-image: url('https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=800&q=80');">
+                    <div class="bg-black/40 w-full h-full flex items-center justify-center">โปรโมชั่นพิเศษเดือนนี้</div>
+                </div>
+                <div class="slider-slide" style="background-image: url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80');">
+                    <div class="bg-black/40 w-full h-full flex items-center justify-center">สมัครวันนี้รับฟรี 100 Points</div>
+                </div>
+                <div class="slider-slide" style="background-image: url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=800&q=80');">
+                    <div class="bg-black/40 w-full h-full flex items-center justify-center">สินค้าใหม่พร้อมให้บริการ</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- หน้าที่ 4: ประวัติการใช้บริการ (History) -->
+    <div id="page-history" class="page-view px-5 pt-6 pb-24">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">ประวัติการใช้บริการ</h2>
+        
+        <div id="history-container" class="space-y-4">
+            <!-- ตัวอย่างโครงสร้างประวัติ จะถูกสร้างโดย JavaScript -->
+            <div class="text-center text-gray-400 py-10">กำลังโหลดประวัติ...</div>
+        </div>
+    </div>
+
+    <!-- หน้าที่ 5: ฉัน (Profile) -->
+    <div id="page-profile" class="page-view px-5 pt-6 pb-24">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">ข้อมูลส่วนตัว</h2>
+        
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+            <div class="flex flex-col items-center mb-6 border-b pb-6">
+                <div class="w-24 h-24 bg-gray-200 rounded-full mb-3 flex items-center justify-center overflow-hidden">
+                    <img id="profile-img" src="" alt="Profile" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
+                </div>
+                <h3 id="profile-name-th" class="text-lg font-bold text-gray-800">ชื่อ - สกุล</h3>
+                <p id="profile-phone" class="text-gray-500 text-sm">08x-xxx-xxxx</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 text-sm"><i class="fa-solid fa-envelope mr-2"></i>อีเมล</span>
+                    <span id="profile-email" class="text-gray-800 font-medium text-sm text-right">example@mail.com</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 text-sm"><i class="fa-solid fa-cake-candles mr-2"></i>วันเกิด</span>
+                    <span id="profile-dob" class="text-gray-800 font-medium text-sm text-right">00/00/0000</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-500 text-sm"><i class="fa-brands fa-line mr-2"></i>LINE ID</span>
+                    <span id="profile-line-id" class="text-gray-400 font-medium text-xs text-right truncate w-32">Uxxxxxxxx</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation App Bar -->
+    <div id="bottom-navigation" class="bottom-nav hidden">
+        <div class="nav-item active" onclick="switchTab('home')" id="tab-home">
+            <i class="fa-solid fa-house"></i>
+            <span>หน้าแรก</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('history')" id="tab-history">
+            <i class="fa-solid fa-receipt"></i>
+            <span>ประวัติ</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('profile')" id="tab-profile">
+            <i class="fa-solid fa-user"></i>
+            <span>ฉัน</span>
+        </div>
+    </div>
+
+    <!-- JavaScript Core -->
+    <script>
+        // ==========================================
+        // การตั้งค่า API และ LIFF
+        // ==========================================
+        const LIFF_ID = "2010842634-E2d2x4l0"; // **ใส่ LIFF ID ของคุณที่นี่**
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx48qTE9jzw8BO-QCiZamFvyiWr2E-u7vhPejpVrZ4tjLvwF-97KWCig0i0Tyz1QYIq/exec"; // **ใส่ URL ของ Google Apps Script ของคุณที่นี่**
+        
+        let currentUserProfile = null;
+        let userDataFromDB = null;
+
+        // ฟังก์ชันเริ่มต้น (เมื่อหน้าเว็บโหลดเสร็จ)
+        window.onload = function() {
+            // ระบบนาฬิกา
+            setInterval(updateClock, 1000);
+            updateClock();
+            
+            // ระบบสไลด์แบนเนอร์
+            initSlider();
+
+            // เริ่มต้น LIFF (ถ้าใช้งานบนคอม จะจำลองข้อมูลเพื่อทดสอบให้)
+            if (LIFF_ID === "2010842634-E2d2x4l0") {
+                hideLoader();
+                showPage('page-login');
+                Swal.fire('แจ้งเตือน', 'กรุณาใส่ LIFF ID และ Web App URL ในโค้ดก่อนใช้งานจริง', 'warning');
+            } else {
+                initializeLiff();
+            }
+        };
+
+        // ==========================================
+        // LIFF & Authentication
+        // ==========================================
+        async function initializeLiff() {
+            try {
+                await liff.init({ liffId: LIFF_ID });
+                if (liff.isLoggedIn()) {
+                    currentUserProfile = await liff.getProfile();
+                    checkUserInDatabase(currentUserProfile.userId);
+                } else {
+                    hideLoader();
+                    showPage('page-login');
+                }
+            } catch (err) {
+                console.error('LIFF Init Error:', err);
+                hideLoader();
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อระบบ LINE ได้', 'error');
+            }
+        }
+
+        function loginWithLine() {
+            if (!liff.isLoggedIn()) {
+                liff.login();
+            }
+        }
+
+        // ==========================================
+        // ระบบติดต่อกับ Backend (Google Apps Script)
+        // ==========================================
+        async function checkUserInDatabase(lineId) {
+            showLoader();
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getUser', lineId: lineId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // ผู้ใช้เก่า พาไปหน้า Dashboard
+                    userDataFromDB = result.user;
+                    updateDashboardData();
+                    document.getElementById('bottom-navigation').style.display = 'flex';
+                    switchTab('home');
+                } else {
+                    // ผู้ใช้ใหม่ พาไปหน้าลงทะเบียน
+                    showPage('page-register');
+                }
+            } catch (error) {
+                console.error('API Error:', error);
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error');
+            } finally {
+                hideLoader();
+            }
+        }
+
+        // ==========================================
+        // ระบบสมัครสมาชิกและ OTP
+        // ==========================================
+        async function requestOTP() {
+            const emailInput = document.getElementById('reg-email');
+            if (!emailInput.checkValidity()) {
+                emailInput.reportValidity();
+                return;
+            }
+
+            const btnOtp = document.getElementById('btn-otp');
+            btnOtp.disabled = true;
+            btnOtp.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> รอสักครู่';
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'sendOTP', email: emailInput.value })
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ส่งรหัสแล้ว',
+                        text: 'กรุณาตรวจสอบรหัส OTP 6 หลัก ในกล่องจดหมายอีเมลของคุณ',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                    document.getElementById('otp-section').style.display = 'block';
+                    document.getElementById('btn-submit-reg').style.display = 'block';
+                    document.getElementById('reg-email').readOnly = true;
+                    btnOtp.innerText = 'ส่งสำเร็จ';
+                } else {
+                    Swal.fire('เกิดข้อผิดพลาด', result.message, 'error');
+                    btnOtp.disabled = false;
+                    btnOtp.innerText = 'รับรหัสยืนยัน';
+                }
+            } catch (error) {
+                Swal.fire('ข้อผิดพลาด', 'ระบบเครือข่ายมีปัญหา', 'error');
+                btnOtp.disabled = false;
+                btnOtp.innerText = 'รับรหัสยืนยัน';
+            }
+        }
+
+        async function submitRegister(e) {
+            e.preventDefault();
+            
+            const otpCode = document.getElementById('reg-otp').value;
+            if(otpCode.length !== 6) {
+                Swal.fire('แจ้งเตือน', 'กรุณากรอกรหัส OTP ให้ครบ 6 หลัก', 'warning');
+                return;
+            }
+
+            showLoader();
+            
+            const payload = {
+                action: 'register',
+                lineId: currentUserProfile.userId,
+                prefix: document.getElementById('reg-prefix').value,
+                nameTh: document.getElementById('reg-name-th').value,
+                nameEn: document.getElementById('reg-name-en').value,
+                phone: document.getElementById('reg-phone').value,
+                dob: document.getElementById('reg-dob').value,
+                email: document.getElementById('reg-email').value,
+                otp: otpCode
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                if (result.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ลงทะเบียนสำเร็จ!',
+                        text: 'ยินดีต้อนรับเข้าสู่ระบบ',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        // โหลดข้อมูลเข้าสู่ระบบ
+                        checkUserInDatabase(currentUserProfile.userId);
+                    });
+                } else {
+                    hideLoader();
+                    Swal.fire('ผิดพลาด', result.message, 'error');
+                }
+            } catch (error) {
+                hideLoader();
+                Swal.fire('ข้อผิดพลาด', 'ระบบเครือข่ายมีปัญหา', 'error');
+            }
+        }
+
+        // ==========================================
+        // ระบบ UI และฟังก์ชันอรรถประโยชน์
+        // ==========================================
+        
+        // ฟังก์ชันสลับหน้าหลักผ่าน Tab ด้านล่าง
+        function switchTab(tabName) {
+            // ลบ Active จากทุกปุ่ม
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            // ใส่ Active ให้ปุ่มที่กด
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // ซ่อนทุกหน้า
+            showPage(`page-${tabName}`);
+
+            // โหลดข้อมูลเฉพาะหน้า
+            if (tabName === 'history') {
+                loadHistoryData();
+            }
+            // เลื่อนขึ้นบนสุด
+            window.scrollTo(0, 0);
+        }
+
+        // ฟังก์ชันซ่อน/แสดง หน้าต่าง ๆ
+        function showPage(pageId) {
+            document.querySelectorAll('.page-view').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function showLoader() { document.getElementById('loader').style.display = 'flex'; }
+        function hideLoader() { document.getElementById('loader').style.display = 'none'; }
+
+        // อัปเดตข้อมูลในหน้า Dashboard และ Profile
+        function updateDashboardData() {
+            if (!userDataFromDB) return;
+            
+            // Home Data
+            document.getElementById('dash-name').innerText = `${userDataFromDB.prefix}${userDataFromDB.nameTh}`;
+            document.getElementById('card-name-en').innerText = userDataFromDB.nameEn;
+            document.getElementById('card-points').innerText = userDataFromDB.points.toLocaleString();
+            
+            // Profile Data
+            document.getElementById('profile-name-th').innerText = `${userDataFromDB.prefix}${userDataFromDB.nameTh}`;
+            document.getElementById('profile-phone').innerText = userDataFromDB.phone;
+            document.getElementById('profile-email').innerText = userDataFromDB.email;
+            
+            // แปลงรูปแบบวันเกิด
+            let dob = new Date(userDataFromDB.dob);
+            document.getElementById('profile-dob').innerText = `${dob.getDate()}/${dob.getMonth()+1}/${dob.getFullYear() + 543}`;
+            
+            document.getElementById('profile-line-id').innerText = userDataFromDB.lineId;
+            
+            if(currentUserProfile && currentUserProfile.pictureUrl) {
+                document.getElementById('profile-img').src = currentUserProfile.pictureUrl;
+            }
+        }
+
+        // โหลดประวัติการใช้บริการ
+        async function loadHistoryData() {
+            const container = document.getElementById('history-container');
+            container.innerHTML = '<div class="text-center text-gray-400 py-10"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i><br>กำลังโหลดประวัติ...</div>';
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'getHistory', lineId: userDataFromDB.lineId })
+                });
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    if(result.history.length === 0) {
+                        container.innerHTML = '<div class="text-center text-gray-400 py-10 bg-white rounded-xl"><i class="fa-solid fa-folder-open text-3xl mb-2"></i><br>ยังไม่มีประวัติการใช้บริการ</div>';
+                        return;
+                    }
+
+                    container.innerHTML = '';
+                    result.history.forEach(item => {
+                        let dateObj = new Date(item.date);
+                        let dateStr = `${dateObj.getDate()}/${dateObj.getMonth()+1}/${dateObj.getFullYear()+543}`;
+                        // สร้างกล่องประวัติ
+                        const historyHtml = `
+                            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col gap-2">
+                                <div class="flex justify-between items-center border-b pb-2">
+                                    <div class="text-xs text-gray-500"><i class="fa-regular fa-calendar mr-1"></i>${dateStr} <i class="fa-regular fa-clock ml-2 mr-1"></i>${item.time}</div>
+                                    <div class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-md">+${item.pointsReceived} pts</div>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <div class="font-bold text-gray-800">${item.serviceName}</div>
+                                    <div class="text-gray-800 font-semibold">฿${item.price.toLocaleString()}</div>
+                                </div>
+                                <div class="text-right text-xs text-gray-400 mt-1">แต้มคงเหลือ: <span class="font-bold text-blue-600">${item.pointsRemaining}</span></div>
+                            </div>
+                        `;
+                        container.innerHTML += historyHtml;
+                    });
+                }
+            } catch (error) {
+                container.innerHTML = '<div class="text-center text-red-400 py-10">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
+            }
+        }
+
+        // ระบบนาฬิกา
+        function updateClock() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('th-TH', { hour12: false });
+            
+            const thaiMonths = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+            const dateStr = `${now.getDate()} ${thaiMonths[now.getMonth()]} ${now.getFullYear() + 543}`;
+            
+            document.getElementById('clock-time').innerText = timeStr;
+            document.getElementById('clock-date').innerText = dateStr;
+        }
+
+        // ระบบสไลด์แบนเนอร์ (เลื่อนอัตโนมัติทุก 5 วินาที)
+        function initSlider() {
+            const wrapper = document.getElementById('banner-slider');
+            const slides = document.querySelectorAll('.slider-slide');
+            let currentIndex = 0;
+            
+            setInterval(() => {
+                currentIndex = (currentIndex + 1) % slides.length;
+                wrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+            }, 5000);
+        }
+
+    </script>
+</body>
+</html>
