@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NXT MEMBER</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Boxicons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
+        .hidden { display: none !important; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+        .member-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col relative overflow-hidden">
+
+    <!-- 1. หน้า Login -->
+    <section id="login-page" class="h-full flex flex-col items-center justify-center p-6 bg-white z-50">
+        <img src="https://img1.pic.in.th/images/20856.png" alt="Logo" class="w-48 mb-10">
+        <button onclick="loginWithLine()" class="w-full max-w-sm bg-[#06C755] hover:bg-[#05b34c] text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center transition shadow-lg shadow-green-500/30">
+            <i class='bx bxl-line text-2xl mr-2'></i> ดำเนินการต่อด้วย LINE
+        </button>
+    </section>
+
+    <!-- 2. หน้าสมัครสมาชิก (ซ่อนไว้ก่อน) -->
+    <section id="register-page" class="hidden h-full flex-col p-6 bg-white overflow-y-auto w-full max-w-md mx-auto">
+        <div class="text-center mb-6">
+            <img src="https://img1.pic.in.th/images/20856.png" alt="Logo" class="w-32 mx-auto mb-4">
+            <h2 class="text-xl font-bold">ลงทะเบียนสมาชิกใหม่</h2>
+        </div>
+        <form id="registerForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">คำนำหน้า</label>
+                <select id="prefix" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+                    <option value="เด็กหญิง">เด็กหญิง</option>
+                    <option value="เด็กชาย">เด็กชาย</option>
+                    <option value="นาย">นาย</option>
+                    <option value="นาง">นาง</option>
+                    <option value="นางสาว">นางสาว</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">ชื่อ-สกุล (ภาษาไทย)</label>
+                <input type="text" id="nameTh" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">ชื่อ-สกุล (ภาษาอังกฤษ)</label>
+                <input type="text" id="nameEn" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800" style="text-transform: uppercase;">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">เบอร์โทรศัพท์</label>
+                <input type="tel" id="phone" maxlength="10" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">อีเมล</label>
+                <div class="flex gap-2">
+                    <input type="email" id="email" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+                    <button type="button" onclick="requestOTP()" class="bg-slate-800 text-white px-4 py-3 rounded-xl whitespace-nowrap hover:bg-slate-700 text-sm">รับรหัส OTP</button>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">รหัสยืนยัน (OTP)</label>
+                <input type="text" id="otpInput" maxlength="6" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800 text-center tracking-widest text-lg font-bold">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">วัน/เดือน/ปีเกิด</label>
+                <input type="date" id="dob" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-800">
+            </div>
+            <button type="button" onclick="submitRegister()" class="w-full bg-slate-900 text-white font-medium py-4 px-4 rounded-xl mt-6">ยืนยันการลงทะเบียน</button>
+        </form>
+    </section>
+
+    <!-- 3. หน้า Dashboard หลัก (ซ่อนไว้ก่อน) -->
+    <section id="dashboard-page" class="hidden flex-col h-full bg-slate-50 w-full max-w-md mx-auto">
+        
+        <!-- Header & Card -->
+        <div class="p-6 pb-24 overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <p class="text-sm text-slate-500">ยินดีต้อนรับคุณ</p>
+                    <h2 class="text-xl font-bold text-slate-800" id="display-name">Loading...</h2>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-slate-400" id="current-date"></p>
+                    <p class="text-lg font-bold text-slate-800 font-mono" id="current-time">00:00:00</p>
+                </div>
+            </div>
+
+            <!-- Digital Card -->
+            <div class="member-card rounded-2xl p-6 text-white shadow-xl mb-8 relative overflow-hidden">
+                <img src="https://img1.pic.in.th/images/20856.png" class="h-8 mb-6 filter brightness-0 invert opacity-80" alt="Logo">
+                <p class="text-xs text-slate-300 mb-1">MEMBER NAME</p>
+                <h3 class="text-lg font-semibold tracking-wide mb-6 uppercase" id="card-name-en">JOHN DOE</h3>
+                
+                <div class="flex justify-between items-end">
+                    <div>
+                        <p class="text-xs text-slate-300 mb-1">POINT BALANCE</p>
+                        <p class="text-3xl font-bold font-mono text-yellow-400" id="card-points">0</p>
+                    </div>
+                    <button class="bg-white/20 hover:bg-white/30 backdrop-blur text-white text-xs py-2 px-4 rounded-full transition">
+                        ดูประวัติ Point
+                    </button>
+                </div>
+            </div>
+
+            <!-- News Slider (Mockup) -->
+            <div class="mb-6">
+                <h3 class="font-bold text-slate-800 mb-3 flex items-center"><i class='bx bx-news mr-2 text-xl'></i> ประชาสัมพันธ์ / ข่าวสาร</h3>
+                <div class="bg-slate-200 h-40 rounded-2xl flex items-center justify-center text-slate-400 shadow-inner">
+                    <!-- จะใช้ Swiper.js นำมาครอบส่วนนี้ในอนาคต -->
+                    ภาพโฆษณาเลื่อนอัตโนมัติ (Swiper)
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="absolute bottom-0 w-full max-w-md bg-white border-t border-slate-100 flex justify-around p-3 pb-safe z-40 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] rounded-t-2xl">
+            <button class="flex flex-col items-center text-slate-900">
+                <i class='bx bxs-home text-2xl'></i>
+                <span class="text-[10px] font-medium mt-1">หน้าแรก</span>
+            </button>
+            <button class="flex flex-col items-center text-slate-400 hover:text-slate-900 transition">
+                <i class='bx bx-history text-2xl'></i>
+                <span class="text-[10px] font-medium mt-1">ประวัติ</span>
+            </button>
+            <button class="flex flex-col items-center text-slate-400 hover:text-slate-900 transition">
+                <i class='bx bx-user text-2xl'></i>
+                <span class="text-[10px] font-medium mt-1">ฉัน</span>
+            </button>
+        </div>
+    </section>
+
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script>
+        // ใส่ Web App URL จาก Google Apps Script
+        const API_URL = 'URL_ของ_APPS_SCRIPT_ที่ได้จากการ_Deploy'; 
+        let generatedOTP = "";
+
+        // นาฬิกาแบบ Real-time
+        setInterval(() => {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
+            if(document.getElementById('current-date')) document.getElementById('current-date').innerText = dateStr;
+            if(document.getElementById('current-time')) document.getElementById('current-time').innerText = timeStr;
+        }, 1000);
+
+        function loginWithLine() {
+            // โค้ดจำลองการข้ามหน้าจอ (เพื่อแสดงผลการออกแบบ)
+            // ในการใช้งานจริง จะต้องเรียก liff.init() และ liff.login()
+            document.getElementById('login-page').classList.add('hidden');
+            document.getElementById('register-page').classList.remove('hidden');
+        }
+
+        function requestOTP() {
+            const email = document.getElementById('email').value;
+            if(!email) {
+                Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณากรอกอีเมล', confirmButtonColor: '#0f172a' });
+                return;
+            }
+            Swal.fire({ title: 'กำลังส่งรหัส OTP...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+            
+            // จำลองการส่งสำเร็จแบบ UI
+            setTimeout(() => {
+                generatedOTP = "123456"; // ค่าสมมติสำหรับการ Test UI
+                Swal.fire({ icon: 'success', title: 'ส่งสำเร็จ!', text: 'ตรวจสอบรหัส 6 หลักในอีเมลของคุณ', confirmButtonColor: '#0f172a' });
+            }, 1500);
+        }
+
+        function submitRegister() {
+            // ซ่อนหน้าสมัคร -> โชว์ Dashboard 
+            document.getElementById('register-page').classList.add('hidden');
+            document.getElementById('dashboard-page').classList.remove('hidden');
+            document.getElementById('dashboard-page').classList.add('flex');
+            
+            // ดึงชื่อมาแสดง
+            const nameTh = document.getElementById('nameTh').value || 'ลูกค้าทั่วไป';
+            const nameEn = document.getElementById('nameEn').value || 'NXT MEMBER';
+            document.getElementById('display-name').innerText = nameTh;
+            document.getElementById('card-name-en').innerText = nameEn;
+            
+            Swal.fire({ icon: 'success', title: 'ลงทะเบียนสำเร็จ!', text: 'ยินดีต้อนรับสู่ NXT MEMBER', timer: 2000, showConfirmButton: false });
+        }
+    </script>
+</body>
+</html>
